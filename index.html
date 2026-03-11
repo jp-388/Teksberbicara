@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<title>Video Promo Sepatu</title>
+
+<style>
+
+body{
+background:#111;
+font-family:Arial;
+text-align:center;
+color:white;
+}
+
+.container{
+max-width:360px;
+margin:auto;
+position:relative;
+}
+
+video{
+width:100%;
+aspect-ratio:9/16;
+background:black;
+border-radius:10px;
+}
+
+.banner{
+position:absolute;
+bottom:0;
+left:0;
+width:100%;
+overflow:hidden;
+background:rgba(0,0,0,0.6);
+height:90px;
+display:flex;
+align-items:center;
+}
+
+.track{
+display:flex;
+gap:15px;
+animation:jalan 20s linear infinite;
+}
+
+.product{
+position:relative;
+width:80px;
+height:80px;
+flex-shrink:0;
+}
+
+.product img{
+width:100%;
+height:100%;
+object-fit:cover;
+border-radius:10px;
+border:2px solid white;
+}
+
+.label{
+position:absolute;
+top:-6px;
+left:-6px;
+background:red;
+color:white;
+font-size:10px;
+padding:2px 4px;
+border-radius:4px;
+font-weight:bold;
+}
+
+.price{
+position:absolute;
+bottom:-6px;
+left:50%;
+transform:translateX(-50%);
+background:#00c853;
+color:white;
+font-size:11px;
+padding:2px 6px;
+border-radius:4px;
+font-weight:bold;
+}
+
+@keyframes jalan{
+0%{transform:translateX(100%);}
+100%{transform:translateX(-100%);}
+}
+
+textarea{
+width:95%;
+height:80px;
+margin-top:10px;
+font-size:16px;
+}
+
+button{
+padding:10px 15px;
+margin:5px;
+font-size:15px;
+cursor:pointer;
+}
+
+select{
+padding:8px;
+margin-top:5px;
+font-size:14px;
+}
+
+.slider{
+width:90%;
+}
+
+</style>
+</head>
+
+<body>
+
+<h3>Video Promo Sepatu</h3>
+
+<input type="file" id="videoInput" accept="video/*">
+
+<br><br>
+
+<div class="container">
+
+<video id="videoPlayer" controls></video>
+
+<div class="banner">
+<div class="track" id="track"></div>
+</div>
+
+</div>
+
+<br>
+
+<h4>Upload Foto Produk</h4>
+
+<input type="file" id="imageInput" accept="image/*" multiple>
+
+<br>
+
+<h4>Teks Promosi</h4>
+
+<textarea id="promoText">
+Sepatu baru keren! Ringan, nyaman dipakai, dan desain modern. Promo diskon besar hari ini, buruan beli sebelum kehabisan!
+</textarea>
+
+<br>
+
+<select id="voiceStyle">
+<option value="normal">Wanita Normal</option>
+<option value="slow">Wanita Lambat</option>
+<option value="promo">Wanita Iklan</option>
+<option value="happy">Wanita Ceria</option>
+</select>
+
+<br>
+
+<button onclick="bicara()">🔊 Bicara</button>
+<button onclick="stop()">⏹ Stop</button>
+
+<br><br>
+
+<h4>Edit Suara Video</h4>
+
+<input type="range" min="0" max="1" step="0.1" value="1" class="slider" id="volumeSlider">
+
+<br><br>
+
+<h4>Pilih Musik Latar</h4>
+
+<select id="musicSelect">
+<option value="">Tanpa Musik</option>
+<option value="music1.mp3">Musik Promo 1</option>
+<option value="music2.mp3">Musik Promo 2</option>
+<option value="music3.mp3">Musik Promo 3</option>
+</select>
+
+<br>
+
+<button onclick="playMusic()">▶ Play Musik</button>
+<button onclick="stopMusic()">⏹ Stop Musik</button>
+
+<br><br>
+
+<button onclick="simpan()">💾 Simpan Proyek</button>
+
+<button onclick="downloadData()">⬇ Download Proyek</button>
+
+<audio id="musicPlayer" loop></audio>
+
+<script>
+
+/* VIDEO */
+
+document.getElementById("videoInput").addEventListener("change",function(){
+
+let file=this.files[0];
+
+if(file){
+
+let video=document.getElementById("videoPlayer");
+
+video.src=URL.createObjectURL(file);
+
+video.load();
+
+}
+
+});
+
+
+/* FOTO BERJALAN */
+
+document.getElementById("imageInput").addEventListener("change",function(){
+
+let track=document.getElementById("track");
+
+track.innerHTML="";
+
+let files=this.files;
+
+for(let i=0;i<files.length;i++){
+
+let reader=new FileReader();
+
+reader.onload=function(e){
+
+let box=document.createElement("div");
+box.className="product";
+
+let img=document.createElement("img");
+img.src=e.target.result;
+
+let label=document.createElement("div");
+label.className="label";
+label.innerText="Asli 100%";
+
+let price=document.createElement("div");
+price.className="price";
+price.innerText="Rp 399.000";
+
+box.appendChild(img);
+box.appendChild(label);
+box.appendChild(price);
+
+track.appendChild(box);
+
+}
+
+reader.readAsDataURL(files[i]);
+
+}
+
+});
+
+
+/* SUARA WANITA */
+
+let synth=window.speechSynthesis;
+
+function bicara(){
+
+let text=document.getElementById("promoText").value;
+
+let style=document.getElementById("voiceStyle").value;
+
+let utter=new SpeechSynthesisUtterance(text);
+
+utter.lang="id-ID";
+
+if(style=="normal"){ utter.rate=1; utter.pitch=1.2; }
+if(style=="slow"){ utter.rate=0.8; utter.pitch=1.1; }
+if(style=="promo"){ utter.rate=1.2; utter.pitch=1.4; }
+if(style=="happy"){ utter.rate=1.1; utter.pitch=1.6; }
+
+synth.speak(utter);
+
+}
+
+function stop(){ synth.cancel(); }
+
+
+/* VOLUME VIDEO */
+
+let video=document.getElementById("videoPlayer");
+
+document.getElementById("volumeSlider").addEventListener("input",function(){
+
+video.volume=this.value;
+
+});
+
+
+/* MUSIK */
+
+let music=document.getElementById("musicPlayer");
+
+function playMusic(){
+
+let file=document.getElementById("musicSelect").value;
+
+if(file){
+
+music.src=file;
+
+music.play();
+
+}
+
+}
+
+function stopMusic(){
+
+music.pause();
+
+}
+
+
+/* SIMPAN */
+
+function simpan(){
+
+let data={
+
+teks:document.getElementById("promoText").value,
+suara:document.getElementById("voiceStyle").value,
+volume:document.getElementById("volumeSlider").value,
+musik:document.getElementById("musicSelect").value
+
+};
+
+localStorage.setItem("promoVideo",JSON.stringify(data));
+
+alert("Proyek disimpan");
+
+}
+
+
+/* DOWNLOAD */
+
+function downloadData(){
+
+let data=localStorage.getItem("promoVideo");
+
+let blob=new Blob([data],{type:"application/json"});
+
+let a=document.createElement("a");
+
+a.href=URL.createObjectURL(blob);
+
+a.download="proyek-video-promo.json";
+
+a.click();
+
+}
+
+</script>
+
+</body>
+</html>
